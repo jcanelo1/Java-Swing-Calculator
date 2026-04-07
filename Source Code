@@ -1,0 +1,164 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Arrays;
+import javax.swing.*;
+import javax.swing.border.LineBorder;
+
+
+public class Calculator implements ActionListener{
+    int boardWidth = 360;
+    int boardHeight = 540;
+
+    Color customLightGray = new Color(212, 212, 210);
+    Color customDarkGray = new Color (80, 80, 80);
+    Color customBlack = new Color (28, 28, 28);
+    Color customOraange = new Color(255, 149, 0);
+
+    JFrame frame = new JFrame("Calculator");
+    JLabel displayLabel = new JLabel();
+    JPanel displayPanel = new JPanel();
+    JPanel buttonsPanel = new JPanel();
+    String[] buttonLabels = {
+        "AC", "⌫" ,"÷", "x", 
+        "7", "8", "9", "-",
+        "4", "5", "6", "+", 
+        "1", "2", "3", "=",
+        "0", ".", "", ""
+    };
+
+    double storedValue = 0;
+    String currentOperator = null;
+    boolean startNewNumber = true;
+
+
+
+    Calculator() {
+
+
+        frame.setSize(boardWidth, boardHeight);
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout()); 
+
+        displayLabel.setBackground(customBlack);
+        displayLabel.setForeground(Color.white);
+        displayLabel.setFont(new Font("Arial", Font.PLAIN, 80));
+        displayLabel.setHorizontalAlignment(JLabel.RIGHT);
+        displayLabel.setText("0");
+        displayLabel.setOpaque(true);
+
+        displayPanel.setLayout(new BorderLayout());
+        displayPanel.add(displayLabel);
+        frame.add(displayPanel, BorderLayout.NORTH);
+
+        buttonsPanel.setLayout(new GridLayout(5, 4));
+        frame.add(buttonsPanel, BorderLayout.CENTER);
+
+        for (int i = 0; i < buttonLabels.length; i++) {
+            JButton button = new JButton(buttonLabels[i]);
+            button.addActionListener(this);
+            buttonsPanel.add(button); 
+        } 
+            
+            frame.setVisible(true);
+
+        
+        }
+    
+        public void actionPerformed(ActionEvent e) {
+                JButton clickedButton = (JButton) e.getSource();
+                String buttonText = clickedButton.getText();
+                System.out.println(buttonText);
+
+            if (buttonText.equals("AC")) {
+                displayLabel.setText("0");
+                storedValue = 0;
+                currentOperator = null;
+                startNewNumber = true;
+                return;
+            }
+
+            if (buttonText.matches("\\d+")) {
+                if (startNewNumber) {
+                    displayLabel.setText(buttonText);
+                    startNewNumber = false;
+                } else {
+                    displayLabel.setText(displayLabel.getText() + buttonText);
+                }
+            }
+
+            if (buttonText.equals(".")) {
+                if (startNewNumber) {
+                    displayLabel.setText("0.");
+                    startNewNumber = false;
+                } else if (!displayLabel.getText().contains(".")) {
+                    displayLabel.setText(displayLabel.getText() + ".");
+                }
+            }
+
+            if (buttonText.equals("⌫")) {
+                String text = displayLabel.getText();
+
+                if (text.length()> 1) {
+                    displayLabel.setText(text.substring(0, text.length() - 1));
+                } else {
+                    displayLabel.setText("0");
+                    startNewNumber = true;
+                }
+            }
+
+                    // left off here <---------------->
+            if (buttonText.matches("[+\\-x÷]")) {
+                double displayNumber = Double.parseDouble(displayLabel.getText());
+
+
+                if (currentOperator != null && !startNewNumber) {
+                    double secondValue = displayNumber;
+                    switch (currentOperator) {
+                        case "+": storedValue += secondValue; break;
+                        case "-": storedValue -= secondValue; break;
+                        case "x": storedValue *= secondValue; break;
+                        case "÷": storedValue /= secondValue; break;
+                    }
+                    if (storedValue == (int) storedValue) {
+                        displayLabel.setText(String.valueOf((int) storedValue));
+                    } else {
+                        displayLabel.setText(String.valueOf(storedValue));
+                    }
+                } else {
+                    storedValue = displayNumber;
+                }
+                currentOperator = buttonText;
+                startNewNumber = true;
+            }
+
+            if (buttonText.equals("=")) {
+                if (currentOperator == null) {
+                    return;
+                }
+
+                double secondValue = Double.parseDouble(displayLabel.getText());
+                double result = 0;
+
+                switch (currentOperator) {
+                    case "+": result = storedValue + secondValue; break;
+                    case "-": result = storedValue - secondValue; break;
+                    case "x": result = storedValue * secondValue; break;
+                    case "÷": result = storedValue / secondValue; break;
+                }
+
+                if (result == (int) result) {
+                    displayLabel.setText(String.valueOf((int) result));
+                } else {
+                    displayLabel.setText(String.valueOf(result));
+                }
+
+                storedValue = result;
+                currentOperator = null;
+                startNewNumber = true;
+            }
+
+            }
+    
+    }
